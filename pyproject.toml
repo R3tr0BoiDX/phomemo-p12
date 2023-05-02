@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+version = "0.0.1"
+name = "phomemo-p12-tools"
+description='Phomemo P12 printing tools'
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+	{name = 'TOKITA Hiroshi', email='tokita.hiroshi@gmail.com'},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: System :: Hardware :: Hardware Drivers"
+]
+dependencies = [
+    "Pillow",
+    "pycairo",
+    "serial",
+]
+
+[project.urls]
+homepage='https://github.com/soburi/phomemo-p12'
+repository='https://github.com/soburi/phomemo-p12'
+
+[project.scripts]
+phomemo_render_label = "phomemo_render_label:main"
+phomemo_print_p12 = "phomemo_print_p12:main"
+
+[tool.setuptools.packages.find]
+exclude = ["build", "tests"]
