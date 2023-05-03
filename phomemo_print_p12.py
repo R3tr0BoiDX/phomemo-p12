@@ -9,6 +9,7 @@ import binascii
 
 import serial
 import PIL.Image
+import PIL.ImageOps
 
 class DummySerial:
     def __init__(self, w):

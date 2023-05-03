@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-version = "0.0.1"
+version = "0.0.2"
 name = "phomemo-p12-tools"
 description='Phomemo P12 printing tools'
 readme = "README.md"
@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "Pillow",
     "pycairo",
-    "serial",
+    "pyserial",
 ]
 
 [project.urls]
