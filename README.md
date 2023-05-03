@@ -24,3 +24,11 @@ Basic usage
 ```bash
 phomemo_render_label "Hello world!" | phomemo_print_p12 --port=[device]
 ```
+
+Or windows, 
+
+```cmd
+phomemo_render_label "Hello world!" > label.pbm
+phomemo_print_p12 --port=[device] label.pbm
+```
+

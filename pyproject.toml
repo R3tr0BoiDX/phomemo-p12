@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-version = "0.0.3"
+version = "0.0.4"
 name = "phomemo-p12-tools"
 description='Phomemo P12 printing tools'
 readme = "README.md"
@@ -28,8 +28,8 @@ homepage='https://github.com/soburi/phomemo-p12'
 repository='https://github.com/soburi/phomemo-p12'
 
 [project.scripts]
-phomemo_render_label = "phomemo_render_label:main"
-phomemo_print_p12 = "phomemo_print_p12:main"
+phomemo_render_label = "phomemo.render_label:main"
+phomemo_print_p12 = "phomemo.print_p12:main"
 
 [tool.setuptools.packages.find]
 exclude = ["build", "tests"]
