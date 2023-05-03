@@ -8,10 +8,10 @@ Based on [phomemo_d30](https://github.com/polskafan/phomemo_d30) by polskafan,
 
 # Checkout and install
 ```bash
-venv/bin/pip install phomemo-p12-tool
+pip3 install phomemo-p12-tools
 ```
 
-# Usage
+# Setup
 Connect to printer with rfcomm
 
 ```bash
@@ -20,15 +20,15 @@ sudo rfcomm connect 1 XX:XX:XX:XX:XX:XX
 
 Or windows, connect to P12 by 'Bluetooth & device' menu.
 
-Basic usage
+# Usage
+
 ```bash
 phomemo_render_label "Hello world!" | phomemo_print_p12 --port=[device]
 ```
 
-Or windows, 
+Or windows,
 
 ```cmd
 phomemo_render_label "Hello world!" > label.pbm
 phomemo_print_p12 --port=[device] label.pbm
 ```
-
