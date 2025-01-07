@@ -1,19 +1,20 @@
-#!/usr/bin/python3
-# SPDX-License-Identifier: MIT
-# -*- coding: utf-8 -*-
-
 import argparse
-import sys
-import io
 import binascii
+import io
+import logging
+import sys
 
-import serial
 import PIL.Image
 import PIL.ImageOps
+import serial
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 class DummySerial:
     def __init__(self, w):
-        self.width = int(w/8)
+        self.width = int(w / 8)
 
     def write(self, x):
         with io.BytesIO(x) as bstrm:
@@ -22,7 +23,7 @@ class DummySerial:
                 blen = bstrm.readinto(data)
                 if blen == 0:
                     break
-                print(binascii.hexlify(data[0:blen]), file=sys.stderr)
+                logger.debug(binascii.hexlify(data[0:blen]))
         return 0
 
     def flush(self):
@@ -31,22 +32,24 @@ class DummySerial:
     def read(self):
         return bytearray(0)
 
+
 def header(port):
     # printer initialization sniffed from Android app "Print Master"
     packets = [
-        '1f1138',
-        '1f11111f11121f11091f1113',
-        '1f1109',
-        '1f11191f1111',
-        '1f1119',
-        '1f1107'
+        "1f1138",
+        "1f11111f11121f11091f1113",
+        "1f1109",
+        "1f11191f1111",
+        "1f1119",
+        "1f1107",
     ]
 
     for packet in packets:
         port.write(bytes.fromhex(packet))
         port.flush()
         resp = port.read()
-        #print(binascii.hexlify(resp), file=sys.stderr)
+        logger.debug(binascii.hexlify(resp))
+
 
 def preprocess_image(data, width):
     with PIL.Image.open(io.BytesIO(data)) as src:
@@ -54,18 +57,18 @@ def preprocess_image(data, width):
         if src_w > width:
             resized = src.crop(0, 0, width, src_h)
         elif src_w < width:
-            resized = PIL.Image.new('1', (width, src_h), 1)
-            resized.paste(src, (width-src_w, 0))
+            resized = PIL.Image.new("1", (width, src_h), 1)
+            resized.paste(src, (width - src_w, 0))
         else:
             resized = src
 
         return PIL.ImageOps.invert(resized.convert("RGB")).convert("1")
 
+
 def image_to_bytes(image):
     width, height = image.size
 
     output = bytearray(0)
-
     for y in range(height):
         byte = 0
         for x in range(width):
@@ -78,49 +81,59 @@ def image_to_bytes(image):
 
     return output
 
+
 def print_image(port, image):
     width, height = image.size
 
-    output = bytearray.fromhex('1b401d763000')
-    output.extend( int(width/8).to_bytes(2, byteorder="little") )
-    output.extend( height.to_bytes(2, byteorder="little") )
+    output = bytearray.fromhex("1b401d763000")
+    output.extend(int(width / 8).to_bytes(2, byteorder="little"))
+    output.extend(height.to_bytes(2, byteorder="little"))
 
     port.write(output)
     port.flush()
     resp = port.read()
-    #print(binascii.hexlify(resp), file=sys.stderr)
+    logger.debug(binascii.hexlify(resp))
 
     output = image_to_bytes(image)
-
     port.write(output)
     port.flush()
     resp = port.read()
-    #print(binascii.hexlify(resp), file=sys.stderr)
+    logger.debug(binascii.hexlify(resp))
 
 
 def tape_feed(port):
-    output = bytearray.fromhex('1b640d1b640d')
+    output = bytearray.fromhex("1b640d1b640d")
 
     port.write(output)
     port.flush()
     resp = port.read()
-    #print(binascii.hexlify(resp), file=sys.stderr)
+    logger.debug(binascii.hexlify(resp))
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Phomemo P12 printing command")
+    parser.add_argument("--port", dest="port", required=True, help="Serial Port")
+    parser.add_argument(
+        "--dots", dest="dots", default=96, type=int, help="Number of dots in tape width"
+    )
+    parser.add_argument(
+        "filename",
+        nargs="?",
+        help="Filename of image to print. Using stdin if not given.",
+    )
+
+    return parser.parse_args()
+
 
 def main():
-    parser = argparse.ArgumentParser(description='Phomemo P12 printing command')
-    parser.add_argument('--port', dest='port', required=True, help='Serial Port')
-    parser.add_argument('--dots', dest='dots', default=96, type=int, help='Number of dots in tape width')
-    parser.add_argument('filename', nargs='?', help='Filename of image to print. Using stdin if not given.')
 
-    args = parser.parse_args()
-
+    args = parse_args()
     if args.filename:
-        imagedata = open(args.filename, 'rb').read()
+        imagedata = open(args.filename, "rb").read()
     else:
         imagedata = sys.stdin.buffer.read()
 
     image = preprocess_image(imagedata, args.dots)
-
     if args.port == "dummy":
         port = DummySerial(args.dots)
     else:
@@ -131,5 +144,5 @@ def main():
     tape_feed(port)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
