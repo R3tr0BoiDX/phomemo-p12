@@ -1,3 +1,5 @@
+Outdated, needs update.
+
 # phomemo_p12
 Python script to print text on a Phomemo P12 label printer
 

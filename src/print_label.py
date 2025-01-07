@@ -1,11 +1,8 @@
-import argparse
 import binascii
 import io
 import logging
-import sys
 
-import PIL.Image
-import PIL.ImageOps
+from PIL import Image, ImageOps
 import serial
 
 logging.basicConfig(level=logging.DEBUG)
@@ -51,18 +48,18 @@ def header(port):
         logger.debug(binascii.hexlify(resp))
 
 
-def preprocess_image(data, width):
-    with PIL.Image.open(io.BytesIO(data)) as src:
+def preprocess_image(filepath, width):
+    with Image.open(filepath) as src:
         src_w, src_h = src.size
         if src_w > width:
-            resized = src.crop(0, 0, width, src_h)
+            resized = src.crop((0, 0, width, src_h))
         elif src_w < width:
-            resized = PIL.Image.new("1", (width, src_h), 1)
+            resized = Image.new("1", (width, src_h), 1)
             resized.paste(src, (width - src_w, 0))
         else:
             resized = src
 
-        return PIL.ImageOps.invert(resized.convert("RGB")).convert("1")
+        return ImageOps.invert(resized.convert("RGB")).convert("1")
 
 
 def image_to_bytes(image):
@@ -110,39 +107,16 @@ def tape_feed(port):
     logger.debug(binascii.hexlify(resp))
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Phomemo P12 printing command")
-    parser.add_argument("--port", dest="port", required=True, help="Serial Port")
-    parser.add_argument(
-        "--dots", dest="dots", default=96, type=int, help="Number of dots in tape width"
-    )
-    parser.add_argument(
-        "filename",
-        nargs="?",
-        help="Filename of image to print. Using stdin if not given.",
-    )
-
-    return parser.parse_args()
-
-
-def main():
-
-    args = parse_args()
-    if args.filename:
-        imagedata = open(args.filename, "rb").read()
+def print_label(filename, port_id, dots=96):
+    image = preprocess_image(filename, dots)
+    if port_id == "dummy":
+        port = DummySerial(dots)
     else:
-        imagedata = sys.stdin.buffer.read()
-
-    image = preprocess_image(imagedata, args.dots)
-    if args.port == "dummy":
-        port = DummySerial(args.dots)
-    else:
-        port = serial.Serial(args.port, timeout=10)
+        port = serial.Serial(port, timeout=10)
 
     header(port)
     print_image(port, image)
     tape_feed(port)
 
-
-if __name__ == "__main__":
-    main()
+    if port_id != "dummy":
+        port.close()

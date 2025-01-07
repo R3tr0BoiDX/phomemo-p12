@@ -9,7 +9,7 @@ description='Phomemo P12 printing tools'
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-	{name = 'TOKITA Hiroshi', email='tokita.hiroshi@gmail.com'},
+	{name = 'Mirco Janisch', email='mircojanisch@hotmail.com'},
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -24,12 +24,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage='https://github.com/soburi/phomemo-p12'
-repository='https://github.com/soburi/phomemo-p12'
-
-[project.scripts]
-phomemo_render_label = "phomemo.render_label:main"
-phomemo_print_p12 = "phomemo.print_p12:main"
+homepage='https://github.com/R3tr0BoiDX/phomemo-p12'
+repository='https://github.com/R3tr0BoiDX/phomemo-p12'
 
 [tool.setuptools.packages.find]
 exclude = ["build", "tests"]
